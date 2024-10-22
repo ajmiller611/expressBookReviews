@@ -35,41 +35,82 @@ public_users.post("/register", (req,res) => {
 
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
-    res.send(JSON.stringify(books,null, 4));
+    let promise = new Promise((resolve,reject) => {
+        resolve(res.status(200).send(JSON.stringify(books,null, 4)));
+    })
+    promise.then(function() {
+        console.log("From callback status code: " + res.statusCode);
+    })
 });
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
-    const isbn = req.params.isbn;
-    if (books[isbn]) {
-        res.send(books[isbn]);
-    } else {
-        res.status(404).send("ISBN not found.");
+    let promise = new Promise((resolve, reject) => {
+        const isbn = req.params.isbn;
+        if (books[isbn]) {
+            resolve(res.send(books[isbn]));
+        } else {
+            reject(res.status(404).send("ISBN not found."));
+        }  
+    })
+    promise
+        .then(function() {
+            console.log("Callback success with status code: " + res.statusCode);
+        })
+        .catch(error => {
+            console.error("Callback failed with status code: " + res.statusCode );
+        })
     }
- });
+ );
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-    const author = req.params.author;
-    const isbns = Object.keys(books);
-    isbns.forEach(isbn => {
-        if (books[isbn]['author'] === author) {
-            res.send(books[isbn]);
+    let promise = new Promise((resolve, reject) => {
+        const author = req.params.author;
+        const isbns = Object.keys(books);
+        const found = false;
+        isbns.forEach(isbn => {
+            if (books[isbn]['author'] === author) {
+                resolve(res.send(books[isbn]));
+                found = true;
+            }
+        });
+        if (!found) {
+            reject(res.status(404).send("Author not found."));
         }
-    });
-    //res.status(404).send("Author not found.");
+    })
+    promise
+        .then(function() {
+            console.log("Callback success with status code: " + res.statusCode);
+        })
+        .catch(error => {
+            console.error("Callback failed with status code: " + res.statusCode);
+        })
 });
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-    const title = req.params.title;
-    const isbns = Object.keys(books);
-    isbns.forEach(isbn => {
-        if (books[isbn]['title'] === title) {
-            res.send(books[isbn]);
+    let promise = new Promise((resolve, reject) => {
+        const title = req.params.title;
+        const isbns = Object.keys(books);
+        const found = false;
+        isbns.forEach(isbn => {
+            if (books[isbn]['title'] === title) {
+                resolve(res.send(books[isbn]));
+                found = true;
+            }
+        });
+        if (!found) {
+            reject(res.status(404).send("Title not found."));
         }
-    });
-    //res.status(404).send("Title not found.");
+    })
+    promise
+        .then(function() {
+            console.log("Callback success with status code: " + res.statusCode);
+        })
+        .catch(error => {
+            console.error("Callback failed with status code: " + res.statusCode);
+        })
 });
 
 //  Get book review
